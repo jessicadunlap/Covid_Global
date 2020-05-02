@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Lab 08 Starter</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            margin-right: 20px;
+            text-align: center;
+            color: white;
+        }
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: white;
+        }
+        
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Global Deaths Caused by the Covid-19 Pandemic</h1>
+        
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p>Map authored by Jessica Dunlap</p>
+        <p>Scroll your mouse over a circle and click to see the name of the country and total number of deaths for that country. The data was last updated on April 26th 2020. For more information on the Covid-19 Pandemic, please visit the World Health Organization's site.</p>
+    </footer>
+
+    <script src="worlddeath.json"></script>
+    <script src="worldrecovery.json"></script>
+    <script>
+
+      var map = L.map('map', {
+          center: [40,-2],
+          zoom: 2,
+      });
+      
+      var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });  
+      
+      tiles.addTo(map);
+     
+      var popLayer = L.geoJson(worldrecovery, {
+          pointToLayer: function(feature,coordinates) {
+              return L.circleMarker(coordinates, {
+                 color: '#228B22',
+                 weight: 2,
+                 fillColor: '#228B22',
+                 fillOpacity: .5,
+                 stroke: false,
+                 radius: getRadius(feature.properties.Deaths)
+              });
+          },
+         style: function(feature) {
+             return {
+                 color: '#228B22',
+                 fillColor: '#228B22',
+                 radius: getRadius(feature.properties.Deaths)
+             }
+         },
+          onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor:'blue',
+        stroke: false
+    });
+});
+layer.on('mouseout', function() {  
+    layer.setStyle({
+        stroke: true,
+        fillColor: '#228B22'
+    });
+});
+ var name = feature.properties.CNTRY_NAME
+ var deathtotal = feature.properties.Deaths
+ var recovery = feature.properties.recoverty
+ 
+ var popup = ("<b>Country: </b>"+name+"<br><b>Total Deaths: </b>"+deathtotal+"<br><b> Total Cases of Recovery: </b>"+recovery)
+                       layer.bindPopup(popup)
+          }
+    
+          
+      }).addTo(map);
+  
+
+        function getRadius (death){
+   var sr = Math.sqrt(death) * 0.2
+   return sr
+    };
+
+        
+    </script>
+    
+</body>
+
+</html>
